@@ -1,168 +1,227 @@
 <!doctype html>
 <html>
+
 <head>
-  <title>Reverse Proxy by ReconRex</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
-  <base target="_blank">
-  <style>
-    body {
-      padding: 0 0.5em;
-    }
-    .box {
-      margin-top: 1em;
-    }
-    #txtURL {
-      width: 100%;
-      height: 2em;
-      text-indent: 0.5em;
-      padding: 0.25em 0;
-    }
-    #btnGo {
-      width: 100%;
-      font-size: 1.5em;
-    }
-    #list a {
-      margin: 1em;
-    }
-  </style>
+    <title>Frontman Proxy</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <base target="_blank">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Laila:wght@300&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #02012A;
+        }
+
+        .box {
+            margin-top: 1em;
+            text-align: center;
+        }
+
+        .image {
+            pointer-events: none;
+            text-align: center;
+        }
+
+        .text1 {
+            font-family: 'Press Start 2P', cursive;
+            font-size: 25px;
+            text-align: center;
+            color: white;
+        }
+        .footer-text {
+            font-family: 'Press Start 2P', cursive;
+            text-align: center;
+            font-size: 10px;
+            color: whitesmoke;
+            margin-top: 50px;
+        }
+
+        #txtURL {
+            width: 80%;
+            height: 2em;
+            text-indent: 0.5em;
+            padding: 0.25em 0;
+            background: transparent;
+            border-color: #F8E706;
+            border-style: groove;
+            border-radius: 4px;
+        }
+
+        input,
+        select,
+        textarea {
+            color: #F8E706;
+            font-family: 'Laila', sans-serif;
+        }
+
+        #btnGo {
+            transition: all .5s ease;
+            color: #F8E706;
+            border: 3px solid #F8E706;
+            font-family: 'Montserrat', sans-serif;
+            text-transform: uppercase;
+            text-align: center;
+            line-height: 1;
+            font-size: 17px;
+            background-color: transparent;
+            padding: 10px;
+            outline: none;
+            border-radius: 4px;
+            width: 50%;
+        }
+
+        #btnGo:hover {
+            color: #2b2b2b;
+            background-color: #F8E706;
+
+        }
+
+        #list a {
+            margin: 1em;
+        }
+    </style>
 </head>
-<body>
-  <div class="box">
-    <input id="txtURL" type="text" value="www.google.com" autofocus>
-  </div>
-  <div class="box">
-    <button id="btnGo">Go</button>
-  </div>
-  <div class="box">
-    <span>Switch Lines:</span>
-    <select id="selNode"></select>
-  </div>
-  <div class="box" id="list">
-  </div>
-  <script>
-    const PAGE_CONF_SET = 110
-    const PAGE_CONF_GET = 111
 
-    const SW_CONF_RETURN = 112
-    const SW_CONF_CHANGE = 113
+<body><div style="margin-top: 60px;">
+    <p class="image"><img src="ez.gif" alt="" width="320" height="200"></p>
+    <p class="text1"> Enter Your URL </p>
+    <div class="box">
+        <input id="txtURL" type="text" placeholder="google.com" autofocus>
+    </div>
+    <div class="box">
+        <button id="btnGo"> Go </button>
+    </div>
+    <p class="footer-text"><font style="color: #F8E706;">Frontman </font> is a script that stands between you and your targeted web server, routes webpages through a secured tunnel that makes you completely <font style="color: #F8E706;">anonymous</font>, and protects your <font style="color: #F8E706;">privacy</font>.<br><br>It can be used to bypass firewall blocking and stop others from monitoring your web use.</p>
+    <p class="footer-text"> Frontman is still a beta project so don't expect all websites to work properly :/ .</p>
+    <p class="footer-text"><font style="color: #F8E706;">Frontman </font> by @reconrex
+</div>
+    <!-- <div class="box">
+        <span>Switch Lines:</span>
+        <select id="selNode"></select>
+    </div>
+    <div class="box" id="list">
+    </div> -->
+    <script>
+        const PAGE_CONF_SET = 110
+        const PAGE_CONF_GET = 111
 
-    const PAGE_READY_CHECK = 200
-    const SW_READY = 201
+        const SW_CONF_RETURN = 112
+        const SW_CONF_CHANGE = 113
 
-    const sw = navigator.serviceWorker
+        const PAGE_READY_CHECK = 200
+        const SW_READY = 201
 
-
-    sw.addEventListener('message', onSwMsg)
-    sendMsgToSw(PAGE_READY_CHECK)
-
-    btnGo.onclick = function() {
-      const text = txtURL.value.trim()
-      if (text) {
-        const url = './-----' + text
-        open(url, '_blank', 'noopener,noreferrer')
-      }
-    }
-    txtURL.onkeypress = function(e) {
-      if (e.keyCode === 13) {
-        btnGo.onclick()
-      }
-    }
-    txtURL.setSelectionRange(0, txtURL.value.length)
+        const sw = navigator.serviceWorker
 
 
-    function onSwMsg(e) {
-      const [cmd, msg] = e.data
+        sw.addEventListener('message', onSwMsg)
+        sendMsgToSw(PAGE_READY_CHECK)
 
-      switch (cmd) {
-      case SW_CONF_RETURN:
-        conf = msg
-        showConf()
-        break
+        btnGo.onclick = function () {
+            const text = txtURL.value.trim()
+            if (text) {
+                const url = './-----' + text
+                open(url, '_blank', 'noopener,noreferrer')
+            }
+        }
+        txtURL.onkeypress = function (e) {
+            if (e.keyCode === 13) {
+                btnGo.onclick()
+            }
+        }
+        txtURL.setSelectionRange(0, txtURL.value.length)
 
-      case SW_CONF_CHANGE:
-        conf = msg
-        updateSelected()
-        break
 
-      case SW_READY:
-        console.log('sw ready')
-        showIcons()
-        sendMsgToSw(PAGE_CONF_GET)
-        break
-      }
-    }
+        function onSwMsg(e) {
+            const [cmd, msg] = e.data
 
-    function onSwFail(err) {
-      txtURL.value = err
-    }
+            switch (cmd) {
+                case SW_CONF_RETURN:
+                    conf = msg
+                    showConf()
+                    break
 
-    selNode.onchange = function() {
-      const item = this.options[this.selectedIndex]
-      const node = item.value
-      conf.node_default = node
-      sendMsgToSw(PAGE_CONF_SET, conf)
-    }
+                case SW_CONF_CHANGE:
+                    conf = msg
+                    updateSelected()
+                    break
 
-    function sendMsgToSw(cmd, val) {
-      const ctl = sw.controller
-      if (!ctl) {
-        console.log('ctl is null')
-        return
-      }
-      ctl.postMessage([cmd, val])
-    }
+                case SW_READY:
+                    console.log('Front Man Ready')
+                    showIcons()
+                    sendMsgToSw(PAGE_CONF_GET)
+                    break
+            }
+        }
 
-    const SITE_LIST = [
-      ['google', ''],
-      ['youtube', ''],
-      ['twitter', 'twitter.com/google'],
-      ['flickr', ''],
-      ['quora', 'www.quora.com/topic/JavaScript-programming-language'],
-      ['twitch', 'www.twitch.tv/'],
-      ['reddit', ''],
-      ['wiki', 'zh.wikipedia.org/'],
-      ['gist', 'gist.github.com/'],
-      ['facebook', 'facebook.com/Google/'],
-      ['blogger', ''],
-    ]
+        function onSwFail(err) {
+            txtURL.value = err
+        }
 
-    function showIcons() {
-      list.innerHTML = SITE_LIST.map(v => {
-        let [id, url] = v
-        url = url || `www.${id}.com/`
-        return `\
+        function sendMsgToSw(cmd, val) {
+            const ctl = sw.controller
+            if (!ctl) {
+                console.log('')
+                return
+            }
+            ctl.postMessage([cmd, val])
+        }
+
+        const SITE_LIST = [
+            ['google', ''],
+            ['youtube', ''],
+            ['twitter', 'twitter.com/google'],
+            ['flickr', ''],
+            ['quora', 'www.quora.com/topic/JavaScript-programming-language'],
+            ['twitch', 'www.twitch.tv/'],
+            ['reddit', ''],
+            ['wiki', 'zh.wikipedia.org/'],
+            ['gist', 'gist.github.com/'],
+            ['facebook', 'facebook.com/Google/'],
+            ['blogger', ''],
+        ]
+
+        function showIcons() {
+            list.innerHTML = SITE_LIST.map(v => {
+                let [id, url] = v
+                url = url || `www.${id}.com/`
+                return `\
 <a rel="noopener noreferrer" href=./-----https://${url}>\
 <img width=128 height=128 src=__sys__/assets/ico/${id}.png></a>`
-      }).join('')
-    }
-
-    function addNodeItem(id, text) {
-      const optEl = document.createElement('option')
-      optEl.id = '--' + id
-      optEl.text = text
-      optEl.value = id
-      selNode.appendChild(optEl)
-    }
-
-    function updateSelected() {
-      const id = conf.node_default
-      const item = document.getElementById('--' + id)
-      if (item) {
-        item.selected = true
-      } else {
-        console.warn('unknown node:', id)
-      }
-    }
-
-    function showConf() {
-      for (const [id, node] of Object.entries(conf.node_map)) {
-        if (!node.hidden) {
-          addNodeItem(id, node.label)
+            }).join('')
         }
-      }
-      updateSelected()
-    }
-  </script>
+
+        function addNodeItem(id, text) {
+            const optEl = document.createElement('option')
+            optEl.id = '--' + id
+            optEl.text = text
+            optEl.value = id
+            selNode.appendChild(optEl)
+        }
+
+        function updateSelected() {
+            const id = conf.node_default
+            const item = document.getElementById('--' + id)
+            if (item) {
+                item.selected = true
+            } else {
+                console.warn('unknown node:', id)
+            }
+        }
+
+        function showConf() {
+            for (const [id, node] of Object.entries(conf.node_map)) {
+                if (!node.hidden) {
+                    addNodeItem(id, node.label)
+                }
+            }
+            updateSelected()
+        }
+    </script>
 </body>
+
 </html>
